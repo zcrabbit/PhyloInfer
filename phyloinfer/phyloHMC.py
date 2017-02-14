@@ -53,7 +53,7 @@ def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz,
     prop_U = Logpost(prop_tree, propB, D, U, beta, pden, L, scale)
     propH = prop_U + 0.5 * sum(propM*propM)
     
-    print "NNI attempts: {}\nReflection attempts: {}".format(NNI_attempts, Ref_attempts)
+    print "NNI attempts: {},  Ref attempts: {}".format(NNI_attempts, Ref_attempts)
     sys.stdout.flush()
     
     ratio = currH - propH
@@ -112,7 +112,7 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
         samp_para_file.flush()
         samp_stat_file.flush()
         
-    Accepted = 0
+    Accepted = 0.0
     for i in range(nIter):
         exact_stepsz = np.power(1-adap_stepsz_rate,max(1-i*1.0/burnin,0))*stepsz        
         curr_tree, curr_branch, curr_U, NNI_attempts, accepted, ar = hmc_iter(curr_tree, curr_branch, curr_U,
@@ -140,9 +140,9 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
             accept_count += accepted
         Accepted += accepted
         if (i+1)%burnin == 0:
-            print "{} iterations completed; acceptance rate: {}".format(i+1, Accepted*1.0/burnin)
+            print "{} iterations completed; acceptance rate: {}".format(i+1, Accepted/burnin)
             sys.stdout.flush()
-            Accepted = 0
+            Accepted = 0.0
             
     if output_filename:
         samp_tree_file.close()
