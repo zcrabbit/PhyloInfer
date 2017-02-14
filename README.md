@@ -37,12 +37,35 @@ pinf.tree.init(true_tree, branch='random')
 data = pinf.data.treeSimu(true_tree, D, U, beta, pden, 1000)
 ```
 
-Now, you may want to take a look of the negative log-posterior or the log-likelihood of the true tree
+Now, you may want to take a look at the negative log-posterior or the log-likelihood of the true tree
 
 ```python
 L = pinf.Loglikelihood.initialCLV(true_tree, data)
 true_branch = pinf.branch.get(true_tree)
 print "The negative log-posterior of the true tree: {}".format(pinf.Logposterior.Logpost(true_tree, true_branch, D, U, beta, pden, L))
 print "The log-likelihood of the true tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(true_tree, true_branch, D, U, beta, pden, L))
+```
+
+Next, we sample a starting tree from the prior
+
+```python
+init_tree = pinf.Tree()
+init_tree.populate(ntips)
+init_tree.unroot()
+pinf.tree.init(init_tree, branch='random')
+```
+
+Again, you may want to see its negative log-posterior or log-likelihood
+
+```python
+init_branch = pinf.branch.get(init_tree)
+print "The negative log-posterior of the init tree: {}".format(pinf.Logposterior.Logpost(init_tree, init_branch, D, U, beta, pden, L))
+print "The log-likelihood of the init tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(init_tree, init_branch, D, U, beta, pden, L))
+```
+
+Now, we are ready to run ppHMC to sample from the posterior!!!
+
+```python
+samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,kappa), data, 100, 0.0005, 100, subModel='HKY', burned=0.2, adap_stepsz_rate = 0.6)
 ```
 
