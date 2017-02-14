@@ -13,7 +13,7 @@ PhyloInfer is a python package that is built on ETE toolkit and biopython
 
 # Examples
 
-The following example shows how to simulate data from a given phylogeny tree with *50* tips
+In what follows, we presents one simple example on simulated data. First, we simulate data from a given phylogeny tree with 50 tips
 
 ```python
 # load modules
@@ -37,4 +37,12 @@ pinf.tree.init(true_tree, branch='random')
 data = pinf.data.treeSimu(true_tree, D, U, beta, pden, 1000)
 ```
 
+Now, you may want to take a look of the negative log-posterior or the log-likelihood of the true tree
+
+```python
+L = pinf.Loglikelihood.initialCLV(true_tree, data)
+true_branch = pinf.branch.get(true_tree)
+print "The negative log-posterior of the true tree: {}".format(pinf.Logposterior.Logpost(true_tree, true_branch, D, U, beta, pden, L))
+print "The log-likelihood of the true tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(true_tree, true_branch, D, U, beta, pden, L))
+```
 
