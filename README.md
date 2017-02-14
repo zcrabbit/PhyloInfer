@@ -13,7 +13,7 @@ PhyloInfer is a python package that is built on ETE toolkit and biopython
 
 # Examples
 
-The following example shows how to simulate data from a given phylogeny tree with $50$ tips
+The following example shows how to simulate data from a given phylogeny tree with *50* tips
 
 ```python
 # load modules
