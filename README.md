@@ -20,7 +20,7 @@ In what follows, we presents one simple example on simulated data. First, we sim
 import phyloinfer as pinf
 import numpy as np
 
-# simulate Data
+# set model parameters
 pden = np.array([.1,.2,.3,.4])
 kappa = 2
 
@@ -34,6 +34,7 @@ true_tree.populate(ntips)
 true_tree.unroot()
 pinf.tree.init(true_tree, branch='random')
 
+# simulate Data
 data = pinf.data.treeSimu(true_tree, D, U, beta, pden, 1000)
 ```
 
