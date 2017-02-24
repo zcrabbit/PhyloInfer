@@ -53,7 +53,7 @@ def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz,
     prop_U = Logpost(prop_tree, propB, D, U, beta, pden, L, scale)
     propH = prop_U + 0.5 * sum(propM*propM)
     
-    print "NNI attempts: {},  Ref attempts: {}".format(NNI_attempts, Ref_attempts)
+    print "NNI attempts: {}\nRef attempts: {}".format(NNI_attempts, Ref_attempts)
     sys.stdout.flush()
     
     ratio = currH - propH
