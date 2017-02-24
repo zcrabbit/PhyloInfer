@@ -41,7 +41,7 @@ data = pinf.data.treeSimu(true_tree, D, U, beta, pden, 1000)
 Now, you may want to take a look at the negative log-posterior or the log-likelihood of the true tree
 
 ```python
-L = pinf.Loglikelihood.initialCLV(true_tree, data)
+L = pinf.Loglikelihood.initialCLV(data)
 true_branch = pinf.branch.get(true_tree)
 print "The negative log-posterior of the true tree: {}".format(pinf.Logposterior.Logpost(true_tree, true_branch, D, U, beta, pden, L))
 print "The log-likelihood of the true tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(true_tree, true_branch, D, U, beta, pden, L))
