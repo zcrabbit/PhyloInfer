@@ -21,11 +21,10 @@ import phyloinfer as pinf
 import numpy as np
 
 # set model parameters
-pden = np.array([.1,.2,.3,.4])
-kappa = 2
+pden = np.array([.25,.25,.25,.25])
 
-# decompose the rate matrix (HKY model)
-D, U, beta, rate_matrix = pinf.rateM.decompHKY(pden, kappa)
+# decompose the rate matrix (JC model)
+D, U, beta, rate_matrix = pinf.rateM.decompJC()
 
 # sample a random tree from the prior
 ntips = 50
@@ -67,6 +66,6 @@ print "The log-likelihood of the init tree: {}".format(pinf.Loglikelihood.phyloL
 Now, we are ready to run ppHMC to sample from the posterior!!!
 
 ```python
-samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,kappa), data, 100, 0.0005, 100, subModel='HKY', burned=0.2, adap_stepsz_rate = 0.6)
+samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,1), data, 100, 0.001, 100, subModel='JC', surrogate=True,  burnin_frac=0.2, adap_stepsz_rate = 0.4, delta=0.002, monitor_event=true, printfreq=50)
 ```
 

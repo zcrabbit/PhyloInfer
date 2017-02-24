@@ -53,8 +53,9 @@ def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz,
     prop_U = Logpost(prop_tree, propB, D, U, beta, pden, L, scale)
     propH = prop_U + 0.5 * sum(propM*propM)
     
-    print "NNI attempts: {}\nRef attempts: {}".format(NNI_attempts, Ref_attempts)
-    sys.stdout.flush()
+    if monitor_event:
+        print "NNI attempts: {}\nRef attempts: {}".format(NNI_attempts, Ref_attempts)
+        sys.stdout.flush()
     
     ratio = currH - propH
     if ratio >= min(0,np.log(np.random.uniform())):
@@ -65,7 +66,7 @@ def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz,
 
 def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel='HKY', randomization=True,
         surrogate=False, burnin_frac=0.5, adap_stepsz_rate=0.4, scale=0.1, delta=0.01, include=False,
-        printfreq=100, output_filename=None):
+        printfreq=100, monitor_event=False, output_filename=None):
     sampled_tree = []
     sampled_branch = []
     path_U = []
@@ -120,7 +121,8 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
         exact_stepsz = np.power(1-adap_stepsz_rate,max(1-i*1.0/burnin,0))*stepsz        
         curr_tree, curr_branch, curr_U, NNI_attempts, accepted, ar = hmc_iter(curr_tree, curr_branch, curr_U,
                                                                 D, U, beta, pden, L, nLeap, exact_stepsz,
-                                                                scale, delta, randomization, surrogate, include)
+                                                                scale, delta, randomization, surrogate, include,
+                                                                monitor_event)
         
         path_U.append(curr_U)
         path_Loglikelihood.append(phyloLoglikelihood(curr_tree, curr_branch, D, U, beta, pden, L))
