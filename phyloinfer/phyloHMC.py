@@ -86,7 +86,10 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
         D, U, beta, _ = decompGTR(pden, AG, AC, AT, GC, GT, CT)
     
     # initialize the conditional likelihood on tips
-    L = initialCLV(curr_tree, data)
+    if len(curr_tree) != len(data):
+        print "#tips do not match the data!!!"
+        return
+    L = initialCLV(data)
     
     curr_U = Logpost(curr_tree, curr_branch, D, U, beta, pden, L)
     path_U.append(curr_U)

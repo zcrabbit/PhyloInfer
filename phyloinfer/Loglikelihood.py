@@ -4,16 +4,12 @@ import numpy as np
 nuc2vec = {'A':[1.,0.,0.,0.], 'G':[0.,1.,0.,0.], 'C':[0.,0.,1.,0.], 'T':[0.,0.,0.,1.],
            '-':[1.,1.,1.,1.], '?':[1.,1.,1.,1.]}
 
-def initialCLV(tree, data):
+def initialCLV(data):
     nseqs, nsites = len(data), len(data[0])
-    ntips = len(tree)
-    if len(tree) != nseqs:
-        print "#tips do not match the data!!!"
-        return
     
-    L = [np.ones((4,nsites)) for i in range(2*ntips-2)]
-    for node in tree.iter_leaves():
-        L[node.name] = np.transpose([nuc2vec[c] for c in data[node.name]])
+    L = [np.ones((4,nsites)) for i in range(2*nseqs-2)]
+    for i in range(nseqs):
+        L[i] = np.transpose([nuc2vec[c] for c in data[i]])
     return L
             
 def phyloLoglikelihood(tree, branch, D, U, beta, pden, L, grad=False):
