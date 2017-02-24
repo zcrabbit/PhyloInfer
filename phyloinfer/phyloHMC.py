@@ -64,8 +64,8 @@ def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz,
     
 
 def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel='HKY', randomization=True,
-        surrogate=False, burned=0.5, adap_stepsz_rate=0.4, scale=0.1, delta=0.01, include=False,
-        output_filename=None):
+        surrogate=False, burnin_frac=0.5, adap_stepsz_rate=0.4, scale=0.1, delta=0.01, include=False,
+        printfreq=100, output_filename=None):
     sampled_tree = []
     sampled_branch = []
     path_U = []
@@ -73,7 +73,7 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
     nni_attempts = []
     accept_rate = []
     accept_count = 0.0
-    burnin = np.floor(burned*nIter)
+    burnin = np.floor(burnin_frac*nIter)
     
     pden, sub_rate = Qmat_para
     # eigen decomposition of the rate matrix
@@ -142,8 +142,8 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
             sampled_branch.append(curr_branch)
             accept_count += accepted
         Accepted += accepted
-        if (i+1)%burnin == 0:
-            print "{} iterations completed; acceptance rate: {}".format(i+1, Accepted/burnin)
+        if (i+1)%printfreq == 0:
+            print "{} iterations completed; acceptance rate: {}".format(i+1, Accepted/printfreq)
             sys.stdout.flush()
             Accepted = 0.0
             
