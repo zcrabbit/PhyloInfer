@@ -66,6 +66,6 @@ print "The log-likelihood of the init tree: {}".format(pinf.Loglikelihood.phyloL
 Now, we are ready to run ppHMC to sample from the posterior!!!
 
 ```python
-samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,1), data, 100, 0.001, 100, subModel='JC', surrogate=True,  burnin_frac=0.2, adap_stepsz_rate = 0.4, delta=0.002, monitor_event=true, printfreq=100)
+samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,1), data, 100, 0.001, 100, subModel='JC', surrogate=True,  burnin_frac=0.2, adap_stepsz_rate = 0.4, delta=0.002, monitor_event=True, printfreq=50)
 ```
 
