@@ -71,7 +71,7 @@ def saveTree(sampled_tree, filename, tree_format):
             output_file.write(tree_newick + '\n')
             
 
-def readTree(filename):
+def readTree(filename,tree_format=3):
     with open(filename,'r') as readin_file:
         id_line = readin_file.readline()
         ID = ''.join(re.split('\[|\]|ID:',id_line)).strip()
@@ -81,7 +81,7 @@ def readTree(filename):
             if line == "":
                 break
             tree_name, newick = line.strip('\n').split('\t')
-            samp_tree_list.append(Tree(newick,format=3))
+            samp_tree_list.append(Tree(newick,format=tree_format))
             init(samp_tree_list[-1], name='interior')
         
     return samp_tree_list
