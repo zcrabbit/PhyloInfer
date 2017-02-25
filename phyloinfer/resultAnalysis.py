@@ -5,33 +5,32 @@ from Bio import Phylo
 from cStringIO import StringIO
 from .treeManipulation import init
 from phyloinfer import Tree
+from collections import defaultdict
 
 
 
 def treeStats(sampled_tree, target_tree_dict=None):
     if not target_tree_dict:
-        tree_samp_stats = {}
+        id2stats = defaultdict(int)
+        id2tree = defaultdict()
         for tree in sampled_tree:
-            seen = 0
-            for exist_tree in tree_samp_stats:
-                if tree.robinson_foulds(exist_tree,unrooted_trees=True)[0] == 0:
-                    seen = 1
-                    tree_samp_stats[exist_tree] += 1
-                    break
-            if not seen:
-                tree_samp_stats[tree] = 1
+            ID = tree.get_topology_id()
+            id2stats[ID] += 1
+            if ID not in id2tree:
+                id2tree[ID] = tree
+
     else:
-        tree_samp_stats = {tree:0.0 for tree in target_tree_dict}
+        id2stats = {tree.get_topology_id():0.0 for _,tree in target_tree_dict.items()}
+        id2tree = {tree.get_topology_id():_ for _,tree in target_tree_dict.items()}
         for tree in sampled_tree:
-            for target in tree_samp_stats:
-                if tree.robinson_foulds(target_tree_dict[target],unrooted_trees=True)[0] == 0:
-                    tree_samp_stats[target] += 1
-                    break
-        
+            ID = tree.get_topology_id()
+            if ID in id2stats:
+                id2stats[ID] += 1     
+
     tree_samp_count = len(sampled_tree)*1.0
-    for tree_samp in tree_samp_stats:
-        tree_samp_stats[tree_samp] /= tree_samp_count
-    return sorted(tree_samp_stats.items(), key=lambda x:x[1], reverse=True)
+    for tree_id in id2stats:
+        id2stats[tree_id] /= tree_samp_count
+    return sorted(id2stats.items(), key=lambda x:x[1], reverse=True), id2tree
 
 
 def savePara(sampled_branch, filename):
@@ -70,6 +69,22 @@ def saveTree(sampled_tree, filename, tree_format):
         for tree in sampled_tree:
             tree_newick = tree.write(format=tree_format)
             output_file.write(tree_newick + '\n')
+            
+
+def readTree(filename):
+    with open(filename,'r') as readin_file:
+        id_line = readin_file.readline()
+        ID = ''.join(re.split('\[|\]|ID:',id_line)).strip()
+        samp_tree_list = []
+        while True:
+            line = readin_file.readline()
+            if line == "":
+                break
+            tree_name, newick = line.strip('\n').split('\t')
+            samp_tree_list.append(Tree(newick,format=3))
+            init(samp_tree_list[-1], name='interior')
+        
+    return samp_tree_list
 
 
 def mcmc_treeprob(filename, data_type, truncate=10):
