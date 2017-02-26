@@ -33,11 +33,10 @@ def treeStats(sampled_tree, target_tree_dict=None):
     return sorted(id2stats.items(), key=lambda x:x[1], reverse=True), id2tree
 
 
-def savePara(sampled_branch, filename):
-    import uuid
+def savePara(sampled_branch, filename, ID):
     branch_count = len(sampled_branch[0])
     with open(filename,'w') as output_file:
-        output_file.write('[ID:{}]\n'.format(uuid.uuid4()))
+        output_file.write('[ID:{}]\n'.format(ID))
         output_file.write('nIter' + '\t' + '\t'.join(['length[{}]'.format(i) for i in range(branch_count)]) + '\n')
         for i, branch in enumerate(sampled_branch):
             output_file.write(str(i) + '\t' + '\t'.join([str(branch) for branch in sampled_branch[i]]) + '\n')
@@ -61,17 +60,18 @@ def readPara(filename):
     return stats_dict, names, ID 
 
 
-def saveTree(sampled_tree, filename, tree_format):
+def saveTree(sampled_tree, filename, tree_format, ID):
     if type(sampled_tree) is not list:
         sampled_tree = [sampled_tree]
         
     with open(filename,'w') as output_file:
-        for tree in sampled_tree:
+        output_file.write('[ID:{}]\n'.format(ID))
+        for i, tree in enumerate(sampled_tree):
             tree_newick = tree.write(format=tree_format)
-            output_file.write(tree_newick + '\n')
+            output_file.write('tree_{}'.format(i) + '\t' + tree_newick + '\n')
             
 
-def readTree(filename,tree_format=3):
+def readTree(filename, tree_format=3):
     with open(filename,'r') as readin_file:
         id_line = readin_file.readline()
         ID = ''.join(re.split('\[|\]|ID:',id_line)).strip()
