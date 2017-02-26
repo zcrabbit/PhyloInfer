@@ -37,7 +37,7 @@ def statSamp(pden, idx=False):
             else:
                 return nucnames[i]
 
-# simulate taxon seqences given the tree topology and rate matrices
+# simulate taxon sequences given the tree topology and rate matrices
 def treeSimu(tree, D, U, beta, pden, ndata):
     ntips = len(tree)
     pt_matrix = [np.zeros((4,4)) for i in range(2*ntips-3)]
