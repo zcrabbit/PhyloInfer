@@ -13,7 +13,11 @@ PhyloInfer is a python package that is built on ETE toolkit and biopython
 
 # Examples
 
-In what follows, we present one simple example on simulated data. First, we simulate data from a given phylogeny tree with 50 tips
+In what follows, we present some simple examples on simulated data and real data. 
+
+## Simulated Dataset
+
+First, we simulate data from a given phylogeny tree with 50 tips
 
 ```python
 # load modules
@@ -69,3 +73,29 @@ Now, we are ready to run ppHMC to sample from the posterior!!!
 samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,1), data, 100, 0.001, 100, subModel='JC', surrogate=True,  burnin_frac=0.2, adap_stepsz_rate = 0.4, delta=0.002, monitor_event=True, printfreq=50)
 ```
 
+## Primates Dataset
+
+Load primates data set
+
+```python
+data, taxon = pinf.data.loadData('../datasets/primates.nex','nexus')
+```
+
+Again, initialize the tree from the prior
+
+```python
+ntips = len(taxon)
+init_tree = pinf.Tree()
+init_tree.populate(ntips)
+init_tree.unroot()
+pinf.tree.init(init_tree, branch='random')
+init_branch = pinf.branch.get(init_tree)
+```
+
+Run ppHMC to sample from the posterior
+
+```python
+samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,1), data, 100, 0.004, 100, subModel='JC', surrogate=True, burnin_frac=0.5, delta=0.008, adap_stepsz_rate=0.8, printfreq=20)
+```
+
+For more details, see the notebooks in examples.
