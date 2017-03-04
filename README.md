@@ -4,12 +4,18 @@ The goal of this package is to develop efficient approximate inference methods f
 we have implemented a probablistic path Hamiltonian Monte Carlo method for Bayesian phylogenetic inference.
 
 
-# Prerequisites
+# Prerequisites and Installation
 
 PhyloInfer is a python package that is built on ETE toolkit and biopython
 
 * [ete3](http://etetoolkit.org)
 * [Bio](http://biopython.org)
+
+To install, simple run
+```sh
+pip install phyloinfer
+```
+and those dependencies will be automatically installed.
 
 # Examples
 
