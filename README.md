@@ -1,7 +1,7 @@
 # PhyloInfer
 
 The goal of this package is to develop efficient approximate inference methods for Bayesian phylogenetics. So far, 
-we have implemented a probablistic path Hamiltonian Monte Carlo method for Bayesian phylogenetic inference.
+we have implemented a [probablistic path Hamiltonian Monte Carlo](https://arxiv.org/abs/1702.07814) method for Bayesian phylogenetic inference.
 
 
 # Prerequisites and Installation
