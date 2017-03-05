@@ -61,6 +61,7 @@ def idx2nodeMAP(tree):
     return idx2node
 
 
+# perform NNI on interior branches
 def NNI(node, include=False):
     if node.is_root() or node.is_leaf():
         print "Can not perform NNI on root or leaf branches!"

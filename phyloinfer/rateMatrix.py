@@ -1,5 +1,8 @@
+# Substitution Models
 
 import numpy as np
+
+
 
 def decompJC(mu=1):
     pA = pG = pC = pT = .25
@@ -11,6 +14,7 @@ def decompJC(mu=1):
     D_JC, U_JC = np.linalg.eig(rate_matrix_JC)
     
     return D_JC, U_JC, beta, rate_matrix_JC
+
 
 def decompHKY(pden, kappa):
     pA, pG, pC, pT = pden
@@ -29,6 +33,7 @@ def decompHKY(pden, kappa):
     D_HKY, U_HKY = np.linalg.eig(rate_matrix_HKY)
        
     return D_HKY, U_HKY, beta, rate_matrix_HKY
+
 
 def decompGTR(pden, AG, AC, AT, GC, GT, CT):
     pA, pG, pC, pT = pden

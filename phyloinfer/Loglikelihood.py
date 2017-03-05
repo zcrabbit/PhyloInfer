@@ -4,6 +4,9 @@ import numpy as np
 nuc2vec = {'A':[1.,0.,0.,0.], 'G':[0.,1.,0.,0.], 'C':[0.,0.,1.,0.], 'T':[0.,0.,0.,1.],
            '-':[1.,1.,1.,1.], '?':[1.,1.,1.,1.]}
 
+
+
+# initialized the conditional likelihood vectors
 def initialCLV(data):
     nseqs, nsites = len(data), len(data[0])
     
@@ -11,6 +14,7 @@ def initialCLV(data):
     for i in range(nseqs):
         L[i] = np.transpose([nuc2vec[c] for c in data[i]])
     return L
+
             
 def phyloLoglikelihood(tree, branch, D, U, beta, pden, L, grad=False):
     nsites = L[0].shape[1]
@@ -60,6 +64,8 @@ def phyloLoglikelihood(tree, branch, D, U, beta, pden, L, grad=False):
                 
     return GradLoglikelihood
 
+
+# compute the log marginal likelihood of a tree given conjugate Gamma prior for branch lengths
 def phyloLogMarginallikelihood(tree, D, U, beta, pden, L, gamma_prior=(1,10)):
     nsites = L[0].shape[1]
     ntips = len(tree)

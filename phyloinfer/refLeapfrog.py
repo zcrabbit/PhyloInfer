@@ -15,6 +15,7 @@ def reflection(propB, propM, idx2node, stepsz, include=False):
         ref_index = np.argmin(timelist)
         propB = propB + (stepsz-ref_time+timelist[ref_index]) * propM
         
+        # reflect the momentum
         propM[ref_index] *= -1
         Ref_attempts += 1
         # perform NNI
@@ -25,6 +26,7 @@ def reflection(propB, propM, idx2node, stepsz, include=False):
         tmpB = propB + (stepsz-ref_time) * propM
     
     return tmpB, propM, NNI_attempts, Ref_attempts
+
 
 def refraction(prop_tree, propB, propM, D, U, beta, pden, L, idx2node, stepsz, 
                surrogate=True, include=False, scale = 0.1, delta = 0.01):
@@ -44,11 +46,14 @@ def refraction(prop_tree, propB, propM, D, U, beta, pden, L, idx2node, stepsz,
             
                 tmp_tree = copy.deepcopy(prop_tree)
                 tmp_idx2node = idx2nodeMAP(tmp_tree)
+                # check if a topology transition has been made
                 tmp_nni_made = NNI(tmp_idx2node[ref_index], include=include)
                 
                 if tmp_nni_made !=0:            
                     U_after_nni = Logpost(tmp_tree, propB, D, U, beta, pden, L, scale=scale, delta=delta, surrogate=True)
+                    # compute the energy gap
                     delta_U = U_after_nni - U_before_nni
+                    
                     if propM[ref_index]**2 >= 2*delta_U:
                         propM[ref_index] = np.sqrt(propM[ref_index]**2-2*delta_U)
                         prop_tree = tmp_tree
