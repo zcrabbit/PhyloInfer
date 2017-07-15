@@ -13,7 +13,7 @@ from .branchManipulation import set
 
 
 
-def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz, 
+def hmc_iter(curr_tree, curr_branch, curr_U, D, U, U_inv, pden, L, nLeap, stepsz, 
              scale=0.1, delta=0.01, randomization=True, surrogate=False, include=False,
              monitor_event=False):
     # initialize the momentum
@@ -34,10 +34,10 @@ def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz,
     NNI_attempts, Ref_attempts = 0, 0
     # run the refractive leap-frog
     for i in range(nLeap_exact):
-        propM = propM - stepsz/2 * GradLogpost(prop_tree, propB, D, U, beta, pden, L,
+        propM = propM - stepsz/2 * GradLogpost(prop_tree, propB, D, U, U_inv, pden, L,
                                                scale=scale, delta=delta, surrogate=surrogate) 
         
-        prop_tree, tmpB, propM, step_nni_attempts, step_ref_attempts = refraction(prop_tree, propB, propM, D, U, beta, pden, L,
+        prop_tree, tmpB, propM, step_nni_attempts, step_ref_attempts = refraction(prop_tree, propB, propM, D, U, U_inv, pden, L,
                                                                                   idx2node, stepsz, delta=delta, scale=scale,
                                                                                   surrogate=surrogate, include=include)
         
@@ -47,10 +47,10 @@ def hmc_iter(curr_tree, curr_branch, curr_U, D, U, beta, pden, L, nLeap, stepsz,
         propB = tmpB     
         set(prop_tree,propB)
             
-        propM = propM - stepsz/2 * GradLogpost(prop_tree, propB, D, U, beta, pden, L,
+        propM = propM - stepsz/2 * GradLogpost(prop_tree, propB, D, U, U_inv, pden, L,
                                                scale=scale, delta=delta, surrogate=surrogate) 
     
-    prop_U = Logpost(prop_tree, propB, D, U, beta, pden, L, scale)
+    prop_U = Logpost(prop_tree, propB, D, U, U_inv, pden, L, scale)
     propH = prop_U + 0.5 * sum(propM*propM)
     
     if monitor_event:
@@ -75,16 +75,18 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
     accept_rate = []
     accept_count = 0.0
     burnin = np.floor(burnin_frac*nIter)
-    
-    pden, sub_rate = Qmat_para
+        
     # eigen decomposition of the rate matrix
     if subModel == 'JC':
-        D, U, beta, _ = decompJC(sub_rate)
-    if subModel == 'HKY':
-        D, U, beta, _ = decompHKY(pden, sub_rate)
-    if subModel == 'GTR':
-        AG, AC, AT, GC, GT, CT = sub_rate
-        D, U, beta, _ = decompGTR(pden, AG, AC, AT, GC, GT, CT)
+        pden = Qmat_para
+        D, U, U_inv, _ = decompJC()
+    else:
+        pden, sub_rate = Qmat_para
+        if subModel == 'HKY':
+            D, U, U_inv, _ = decompHKY(pden, sub_rate)
+        if subModel == 'GTR':
+            AG, AC, AT, GC, GT, CT = sub_rate
+            D, U, U_inv, _ = decompGTR(pden, AG, AC, AT, GC, GT, CT)
     
     # initialize the conditional likelihood on tips
     if len(curr_tree) != len(data):
@@ -92,9 +94,9 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
         return
     L = initialCLV(data)
     
-    curr_U = Logpost(curr_tree, curr_branch, D, U, beta, pden, L)
+    curr_U = Logpost(curr_tree, curr_branch, D, U, U_inv, pden, L)
     path_U.append(curr_U)
-    path_Loglikelihood.append(phyloLoglikelihood(curr_tree, curr_branch, D, U, beta, pden, L))
+    path_Loglikelihood.append(phyloLoglikelihood(curr_tree, curr_branch, D, U, U_inv, pden, L))
     
     # save current samples to files
     if output_filename:
@@ -120,12 +122,12 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
     for i in range(nIter):
         exact_stepsz = np.power(1-adap_stepsz_rate,max(1-i*1.0/burnin,0))*stepsz        
         curr_tree, curr_branch, curr_U, NNI_attempts, accepted, ar = hmc_iter(curr_tree, curr_branch, curr_U,
-                                                                D, U, beta, pden, L, nLeap, exact_stepsz,
+                                                                D, U, U_inv, pden, L, nLeap, exact_stepsz,
                                                                 scale, delta, randomization, surrogate, include,
                                                                 monitor_event)
         
         path_U.append(curr_U)
-        path_Loglikelihood.append(phyloLoglikelihood(curr_tree, curr_branch, D, U, beta, pden, L))
+        path_Loglikelihood.append(phyloLoglikelihood(curr_tree, curr_branch, D, U, U_inv, pden, L))
         if output_filename:
             samp_tree_file.write('tree_{}:'.format(i+1) + '\t' + curr_tree.write(format=3) + '\n')
             samp_para_file.write('{}\t{}\t'.format(i+1,path_Loglikelihood[-1]) + 
@@ -145,7 +147,7 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
             accept_count += accepted
         Accepted += accepted
         if (i+1)%printfreq == 0:
-            print "{} iterations completed; acceptance rate: {}".format(i+1, Accepted/printfreq)
+            print "\n######   {} iterations completed; acceptance rate: {}\n".format(i+1, Accepted/printfreq)
             sys.stdout.flush()
             Accepted = 0.0
             

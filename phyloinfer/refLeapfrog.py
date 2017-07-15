@@ -28,7 +28,7 @@ def reflection(propB, propM, idx2node, stepsz, include=False):
     return tmpB, propM, NNI_attempts, Ref_attempts
 
 
-def refraction(prop_tree, propB, propM, D, U, beta, pden, L, idx2node, stepsz, 
+def refraction(prop_tree, propB, propM, D, U, U_inv, pden, L, idx2node, stepsz, 
                surrogate=True, include=False, scale = 0.1, delta = 0.01):
     tmpB = propB + stepsz*propM
     ref_time = 0
@@ -42,7 +42,7 @@ def refraction(prop_tree, propB, propM, D, U, beta, pden, L, idx2node, stepsz,
         Ref_attempts += 1
         if not idx2node[ref_index].is_leaf():
             if surrogate:
-                U_before_nni = Logpost(prop_tree, propB, D, U, beta, pden, L, scale=scale, delta=delta, surrogate=True)
+                U_before_nni = Logpost(prop_tree, propB, D, U, U_inv, pden, L, scale=scale, delta=delta, surrogate=True)
             
                 tmp_tree = copy.deepcopy(prop_tree)
                 tmp_idx2node = idx2nodeMAP(tmp_tree)
@@ -50,7 +50,7 @@ def refraction(prop_tree, propB, propM, D, U, beta, pden, L, idx2node, stepsz,
                 tmp_nni_made = NNI(tmp_idx2node[ref_index], include=include)
                 
                 if tmp_nni_made !=0:            
-                    U_after_nni = Logpost(tmp_tree, propB, D, U, beta, pden, L, scale=scale, delta=delta, surrogate=True)
+                    U_after_nni = Logpost(tmp_tree, propB, D, U, U_inv, pden, L, scale=scale, delta=delta, surrogate=True)
                     # compute the energy gap
                     delta_U = U_after_nni - U_before_nni
                     

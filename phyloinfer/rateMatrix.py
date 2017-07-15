@@ -4,16 +4,16 @@ import numpy as np
 
 
 
-def decompJC(mu=1):
+def decompJC():
     pA = pG = pC = pT = .25
-    beta = 4.0/(3*mu)
-    rate_matrix_JC = mu/4.0 * np.ones((4,4))
+    rate_matrix_JC = 1/3.0 * np.ones((4,4))
     for i in range(4):
-        rate_matrix_JC[i,i] = -3.0/4 * mu
+        rate_matrix_JC[i,i] = -1.0
     
     D_JC, U_JC = np.linalg.eig(rate_matrix_JC)
+    U_JC_inv = np.linalg.inv(U_JC)
     
-    return D_JC, U_JC, beta, rate_matrix_JC
+    return D_JC, U_JC, U_JC_inv, rate_matrix_JC
 
 
 def decompHKY(pden, kappa):
@@ -30,9 +30,11 @@ def decompHKY(pden, kappa):
     for i in range(4):
         rate_matrix_HKY[i,i] = - sum(rate_matrix_HKY[i,])
     
+    rate_matrix_HKY = beta * rate_matrix_HKY
     D_HKY, U_HKY = np.linalg.eig(rate_matrix_HKY)
+    U_HKY_inv = np.linalg.inv(U_HKY)
        
-    return D_HKY, U_HKY, beta, rate_matrix_HKY
+    return D_HKY, U_HKY, U_HKY_inv, rate_matrix_HKY
 
 
 def decompGTR(pden, AG, AC, AT, GC, GT, CT):
@@ -59,6 +61,8 @@ def decompGTR(pden, AG, AC, AT, GC, GT, CT):
     for i in range(4):
         rate_matrix_GTR[i,i] = - sum(rate_matrix_GTR[i,])
     
+    rate_matrix_GTR = beta * rate_matrix_GTR
     D_GTR, U_GTR = np.linalg.eig(rate_matrix_GTR)
+    U_GTR_inv = np.linalg.inv(U_GTR)
     
-    return D_GTR, U_GTR, beta, rate_matrix_GTR
+    return D_GTR, U_GTR, U_GTR_inv, rate_matrix_GTR
