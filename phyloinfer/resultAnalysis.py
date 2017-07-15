@@ -1,9 +1,10 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import re
+import os
 from Bio import Phylo
 from cStringIO import StringIO
-from .treeManipulation import init
+from pyTQDist import quartetDistance as qdist
+from .treeManipulation import init, namenum
 from phyloinfer import Tree
 from collections import defaultdict
 
@@ -33,10 +34,11 @@ def treeStats(sampled_tree, target_tree_dict=None):
     return sorted(id2stats.items(), key=lambda x:x[1], reverse=True), id2tree
 
 
-def savePara(sampled_branch, filename, ID):
+def savePara(sampled_branch, filename):
+    import uuid
     branch_count = len(sampled_branch[0])
     with open(filename,'w') as output_file:
-        output_file.write('[ID:{}]\n'.format(ID))
+        output_file.write('[ID:{}]\n'.format(uuid.uuid4()))
         output_file.write('nIter' + '\t' + '\t'.join(['length[{}]'.format(i) for i in range(branch_count)]) + '\n')
         for i, branch in enumerate(sampled_branch):
             output_file.write(str(i) + '\t' + '\t'.join([str(branch) for branch in sampled_branch[i]]) + '\n')
@@ -60,15 +62,20 @@ def readPara(filename):
     return stats_dict, names, ID 
 
 
-def saveTree(sampled_tree, filename, tree_format, ID):
+def saveTree(sampled_tree, filename, tree_format, withid=True):
     if type(sampled_tree) is not list:
         sampled_tree = [sampled_tree]
-        
+       
     with open(filename,'w') as output_file:
-        output_file.write('[ID:{}]\n'.format(ID))
+        if withid:
+            import uuid
+            output_file.write('[ID:{}]\n'.format(uuid.uuid4()))
         for i, tree in enumerate(sampled_tree):
             tree_newick = tree.write(format=tree_format)
-            output_file.write('tree_{}'.format(i) + '\t' + tree_newick + '\n')
+            if withid:
+                output_file.write('tree_{}'.format(i) + '\t' + tree_newick + '\n')
+            else:
+                output_file.write(tree_newick + '\n')
             
 
 def readTree(filename, tree_format=3):
@@ -85,9 +92,19 @@ def readTree(filename, tree_format=3):
             init(samp_tree_list[-1], name='interior')
         
     return samp_tree_list
+    
+
+def Qdist(tree1, tree2):
+    if not os.path.exists('out'):
+        os.makedirs('out')
+        
+    saveTree(tree1, 'out/tree1.new', 9)
+    saveTree(tree2, 'out/tree2.new', 9)
+    
+    return qdist('out/tree1.new', 'out/tree2.new')
 
 
-def mcmc_treeprob(filename, data_type, truncate=10):
+def mcmc_treeprob(filename, data_type, truncate=10, taxon=None):
     mcmc_samp_tree_stats = Phylo.parse(filename, data_type)
     mcmc_samp_tree_dict = {}
     mcmc_samp_tree_name = []
@@ -97,7 +114,11 @@ def mcmc_treeprob(filename, data_type, truncate=10):
         handle = StringIO()
         Phylo.write(tree, handle,'newick')
         mcmc_samp_tree_dict[tree.name] = Tree(handle.getvalue().strip())
-        init(mcmc_samp_tree_dict[tree.name],name='interior')
+        if taxon:
+            namenum(mcmc_samp_tree_dict[tree.name], taxon)
+        else:
+            init(mcmc_samp_tree_dict[tree.name],name='interior')
+            
         handle.close()
         mcmc_samp_tree_name.append(tree.name)
         mcmc_samp_tree_wts.append(tree.weight)
