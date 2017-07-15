@@ -38,15 +38,16 @@ def statSamp(pden, idx=False):
                 return nucnames[i]
 
 # simulate taxon sequences given the tree topology and rate matrices
-def treeSimu(tree, D, U, pden, ndata, missrate=0.0):
+def treeSimu(tree, D, U, U_inv, pden, ndata, missrate=0.0):
     ntips = len(tree)
     pt_matrix = [np.zeros((4,4)) for i in range(2*ntips-3)]
     
     # run tree traversal to acquire the transition matrices
     for node in tree.traverse("postorder"):
         if not node.is_root():
-            pt_matrix[node.name] = np.transpose(np.linalg.lstsq(U.T, 
-                                np.dot(np.diag(np.exp(D*node.dist)),U.T))[0])
+            # pt_matrix[node.name] = np.transpose(np.linalg.lstsq(U.T,
+            #                     np.dot(np.diag(np.exp(D*node.dist)),U.T))[0])
+            pt_matrix[node.name] = np.dot(U, np.dot(np.diag(np.exp(D*node.dist)), U_inv))
     
     simuData = []
     status = [''] * (2*ntips-2) 
