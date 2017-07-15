@@ -41,7 +41,7 @@ ntips = 50
 pinf.tree.create(ntips, branch='random')
 
 # simulate Data
-data = pinf.data.treeSimu(true_tree, D, U, U_inv, beta, pden, 1000)
+data = pinf.data.treeSimu(true_tree, D, U, U_inv, pden, 1000)
 ```
 
 Now, you may want to take a look at the negative log-posterior or the log-likelihood of the true tree
