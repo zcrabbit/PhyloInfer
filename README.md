@@ -15,7 +15,7 @@ To install, simple run
 ```sh
 pip install phyloinfer
 ```
-and those dependencies will be automatically installed.
+Please install pyTQDist if you want to use the related features.
 
 # Examples
 
@@ -34,17 +34,14 @@ import numpy as np
 pden = np.array([.25,.25,.25,.25])
 
 # decompose the rate matrix (JC model)
-D, U, beta, rate_matrix = pinf.rateM.decompJC()
+D, U, U_inv, rate_matrix = pinf.rateM.decompJC()
 
 # sample a random tree from the prior
 ntips = 50
-true_tree = pinf.Tree()
-true_tree.populate(ntips)
-true_tree.unroot()
-pinf.tree.init(true_tree, branch='random')
+pinf.tree.create(ntips, branch='random')
 
 # simulate Data
-data = pinf.data.treeSimu(true_tree, D, U, beta, pden, 1000)
+data = pinf.data.treeSimu(true_tree, D, U, U_inv, beta, pden, 1000)
 ```
 
 Now, you may want to take a look at the negative log-posterior or the log-likelihood of the true tree
@@ -52,25 +49,22 @@ Now, you may want to take a look at the negative log-posterior or the log-likeli
 ```python
 L = pinf.Loglikelihood.initialCLV(data)
 true_branch = pinf.branch.get(true_tree)
-print "The negative log-posterior of the true tree: {}".format(pinf.Logposterior.Logpost(true_tree, true_branch, D, U, beta, pden, L))
-print "The log-likelihood of the true tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(true_tree, true_branch, D, U, beta, pden, L))
+print "The negative log-posterior of the true tree: {}".format(pinf.Logposterior.Logpost(true_tree, true_branch, D, U, U_inv, pden, L))
+print "The log-likelihood of the true tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(true_tree, true_branch, D, U, U_inv, pden, L))
 ```
 
 Next, we sample a starting tree from the prior
 
 ```python
-init_tree = pinf.Tree()
-init_tree.populate(ntips)
-init_tree.unroot()
-pinf.tree.init(init_tree, branch='random')
+pinf.tree.create(ntips, branch='random')
 ```
 
 Again, you may want to see its negative log-posterior or log-likelihood
 
 ```python
 init_branch = pinf.branch.get(init_tree)
-print "The negative log-posterior of the init tree: {}".format(pinf.Logposterior.Logpost(init_tree, init_branch, D, U, beta, pden, L))
-print "The log-likelihood of the init tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(init_tree, init_branch, D, U, beta, pden, L))
+print "The negative log-posterior of the init tree: {}".format(pinf.Logposterior.Logpost(init_tree, init_branch, D, U, U_inv, pden, L))
+print "The log-likelihood of the init tree: {}".format(pinf.Loglikelihood.phyloLoglikelihood(init_tree, init_branch, D, U, U_inv, pden, L))
 ```
 
 Now, we are ready to run ppHMC to sample from the posterior!!!
@@ -91,10 +85,7 @@ Again, initialize the tree from the prior
 
 ```python
 ntips = len(taxon)
-init_tree = pinf.Tree()
-init_tree.populate(ntips)
-init_tree.unroot()
-pinf.tree.init(init_tree, branch='random')
+pinf.tree.create(ntips, branch='random')
 init_branch = pinf.branch.get(init_tree)
 ```
 
