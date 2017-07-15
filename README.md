@@ -38,7 +38,7 @@ D, U, U_inv, rate_matrix = pinf.rateM.decompJC()
 
 # sample a random tree from the prior
 ntips = 50
-pinf.tree.create(ntips, branch='random')
+true_tree = pinf.tree.create(ntips, branch='random')
 
 # simulate Data
 data = pinf.data.treeSimu(true_tree, D, U, U_inv, pden, 1000)
@@ -56,7 +56,7 @@ print "The log-likelihood of the true tree: {}".format(pinf.Loglikelihood.phyloL
 Next, we sample a starting tree from the prior
 
 ```python
-pinf.tree.create(ntips, branch='random')
+init_tree = pinf.tree.create(ntips, branch='random')
 ```
 
 Again, you may want to see its negative log-posterior or log-likelihood
