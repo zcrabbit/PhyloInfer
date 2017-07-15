@@ -70,7 +70,7 @@ print "The log-likelihood of the init tree: {}".format(pinf.Loglikelihood.phyloL
 Now, we are ready to run ppHMC to sample from the posterior!!!
 
 ```python
-samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,1), data, 100, 0.001, 100, subModel='JC', surrogate=True,  burnin_frac=0.2, adap_stepsz_rate = 0.4, delta=0.002, monitor_event=True, printfreq=50)
+samp_res = pinf.phmc.hmc(init_tree, init_branch, pden, data, 100, 0.001, 100, subModel='JC', surrogate=True,  burnin_frac=0.2, adap_stepsz_rate = 0.4, delta=0.002, monitor_event=True, printfreq=50)
 ```
 
 ## Primates Dataset
@@ -85,14 +85,14 @@ Again, initialize the tree from the prior
 
 ```python
 ntips = len(taxon)
-pinf.tree.create(ntips, branch='random')
+init_tree = pinf.tree.create(ntips, branch='random')
 init_branch = pinf.branch.get(init_tree)
 ```
 
 Run ppHMC to sample from the posterior
 
 ```python
-samp_res = pinf.phmc.hmc(init_tree, init_branch, (pden,1), data, 100, 0.004, 100, subModel='JC', surrogate=True, burnin_frac=0.5, delta=0.008, adap_stepsz_rate=0.8, printfreq=20)
+samp_res = pinf.phmc.hmc(init_tree, init_branch, pden, data, 100, 0.004, 100, subModel='JC', surrogate=True, burnin_frac=0.5, delta=0.008, adap_stepsz_rate=0.8, printfreq=20)
 ```
 
 For more details, see the notebooks in examples.
