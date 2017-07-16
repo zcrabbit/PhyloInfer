@@ -3,10 +3,14 @@ import re
 import os
 from Bio import Phylo
 from cStringIO import StringIO
-from pyTQDist import quartetDistance as qdist
 from .treeManipulation import init, namenum
 from phyloinfer import Tree
 from collections import defaultdict
+
+try:
+    from pyTQDist import quartetDistance as qdist
+except ImportError:
+    print "No module named pyTQDist found!"
 
 
 

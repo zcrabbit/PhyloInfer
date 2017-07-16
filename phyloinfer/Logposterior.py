@@ -21,7 +21,7 @@ def Logpost(tree, branch, D, U, U_inv, pden, L, scale=0.1, surrogate=False, delt
     return -phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L) - phyloLogprior_exp(branch, scale)
 
 
-def GradLogpost(tree, branch, D, U, pden, L, scale=0.1, surrogate=False, delta = 0.01):
+def GradLogpost(tree, branch, D, U, U_inv, pden, L, scale=0.1, surrogate=False, delta = 0.01):
     if surrogate:
         maped_branch = [mollifier(blen,delta) for blen in branch]
         return (-phyloLoglikelihood(tree, maped_branch, D, U, U_inv, pden, L, grad=True)  

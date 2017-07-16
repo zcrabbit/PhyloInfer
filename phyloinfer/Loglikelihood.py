@@ -17,7 +17,7 @@ def initialCLV(data):
     return L
 
             
-def phyloLoglikelihood(tree, branch, D, U, U_inv, beta, pden, L, grad=False):
+def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False):
     nsites = L[0].shape[1]
     ntips = len(tree)
     Loglikelihood = 0 

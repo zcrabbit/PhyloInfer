@@ -78,7 +78,7 @@ def hmc(curr_tree, curr_branch, Qmat_para, data, nLeap, stepsz, nIter, subModel=
         
     # eigen decomposition of the rate matrix
     if subModel == 'JC':
-        pden = Qmat_para
+        pden, _ = Qmat_para
         D, U, U_inv, _ = decompJC()
     else:
         pden, sub_rate = Qmat_para
