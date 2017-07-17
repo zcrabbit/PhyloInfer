@@ -1,11 +1,14 @@
 
 # Loglikelihood and its gradients
 import numpy as np
-from warnings import warn
+# from warnings import warn
+import warnings
+warnings.simplefilter('always', UserWarning)
 nuc2vec = {'A':[1.,0.,0.,0.], 'G':[0.,1.,0.,0.], 'C':[0.,0.,1.,0.], 'T':[0.,0.,0.,1.],
            '-':[1.,1.,1.,1.], '?':[1.,1.,1.,1.]}
 
 
+import pdb
 
 # initialized the conditional likelihood vectors
 def initialCLV(data):
@@ -36,7 +39,7 @@ def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False):
                 L[node.name] *= Down[child.name] 
             scaler = np.amax(L[node.name],axis=0)
             if not all(scaler):
-                warn("Caution! Incompatible data detected!")
+                warnings.warn("Caution! Incompatible data detected!")
                 return -np.inf
                 
             L[node.name] /= scaler
