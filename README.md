@@ -11,7 +11,7 @@ PhyloInfer is a python package that is built on ETE toolkit and biopython
 * [ete3](http://etetoolkit.org)
 * [Bio](http://biopython.org)
 
-To install, simple run
+To install, simply run
 ```sh
 pip install phyloinfer
 ```
