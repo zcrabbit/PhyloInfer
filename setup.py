@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='phyloinfer',
-      version='0.3',
+      version='0.4',
       description='An efficient Bayesian phylogenetic inference package',
       url='https://github.com/zcrabbit/PhyloInfer',
       author='Cheng Zhang',
