@@ -5,10 +5,11 @@ import numpy as np
 import warnings
 warnings.simplefilter('always', UserWarning)
 nuc2vec = {'A':[1.,0.,0.,0.], 'G':[0.,1.,0.,0.], 'C':[0.,0.,1.,0.], 'T':[0.,0.,0.,1.],
-           '-':[1.,1.,1.,1.], '?':[1.,1.,1.,1.]}
+           '-':[1.,1.,1.,1.], '?':[1.,1.,1.,1.], 'N':[1.,1.,1.,1.], 'R':[1.,1.,0.,0.],
+           'Y':[0.,0.,1.,1.], 'S':[0.,1.,1.,0.], 'W':[1.,0.,0.,1.], 'K':[0.,1.,0.,1.],
+           'M':[1.,0.,1.,0.], 'B':[0.,1.,1.,1.], 'D':[1.,1.,0.,1.], 'H':[1.,0.,1.,1.],
+           'V':[1.,1.,1.,0.], '.':[1.,1.,1.,1.], 'U':[0.,0.,0.,1.]}
 
-
-import pdb
 
 # initialized the conditional likelihood vectors
 def initialCLV(data):
@@ -20,25 +21,23 @@ def initialCLV(data):
     return L
 
             
-def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False):
+def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False, value_and_grad=False):
     nsites = L[0].shape[1]
-    ntips = len(tree)
+
     Loglikelihood = 0 
-    GradLoglikelihood = np.zeros(2*ntips-3)    
-    Down = [np.ones((4,nsites)) for i in range(2*ntips-3)]
-    pt_matrix = [np.zeros((4,4)) for i in range(2*ntips-3)]
+    GradLoglikelihood = np.zeros(len(branch))    
+    Down = [1.0] * len(branch)
+    pt_matrix = [0.0] * len(branch)
     
     for node in tree.traverse("postorder"):
         if not node.is_leaf():
-            L[node.name] = np.ones((4,nsites))
+            L[node.name] = 1.0
             for child in node.children:
-                # pt_matrix[child.name] = np.transpose(np.linalg.lstsq(U.T,
-                #                 np.dot(np.diag(np.exp(D*branch[child.name]*beta)),U.T))[0])
-                pt_matrix[child.name] = np.dot(U, np.dot(np.diag(np.exp(D*branch[child.name])), U_inv))
+                pt_matrix[child.name] = np.dot(U * np.exp(D*branch[child.name]), U_inv)
                 Down[child.name] = np.dot(pt_matrix[child.name],L[child.name])
                 L[node.name] *= Down[child.name] 
-            scaler = np.amax(L[node.name],axis=0)
-            if not all(scaler):
+            scaler = np.sum(L[node.name],axis=0)
+            if not np.all(scaler>0):
                 warnings.warn("Caution! Incompatible data detected!")
                 return -np.inf
                 
@@ -50,17 +49,15 @@ def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False):
     if not grad:
         return Loglikelihood
     
-    Up = [np.ones((4,nsites)) for i in range(2*ntips-2)]
+    Up = [1.0] * (len(branch)+1)
     for node in tree.traverse("preorder"):
         if node.is_root():
-            Up[node.name] = (pden * Up[node.name].T).T
+            Up[node.name] = np.repeat(pden.reshape(-1,1), nsites, axis=1)
         else:
             for sister in node.get_sisters():
                 Up[node.name] *= Down[sister.name]
             Up[node.name] *= Up[node.up.name]
-            # pt_matrix_grad = np.transpose(np.linalg.lstsq(U.T,
-            #                     np.dot(np.diag(beta*D*np.exp(D*branch[node.name]*beta)),U.T))[0])
-            pt_matrix_grad = np.dot(U, np.dot(np.diag(D*np.exp(D*branch[node.name])), U_inv))
+            pt_matrix_grad = np.dot(U * (D*np.exp(D*branch[node.name])), U_inv)
             
             gradient = np.sum(Up[node.name] * np.dot(pt_matrix_grad,L[node.name]),axis=0)
             
@@ -69,10 +66,13 @@ def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False):
             GradLoglikelihood[node.name] = np.sum(gradient)
             
             if not node.is_leaf():
-                scaler = np.amax(Up[node.name],axis=0)
+                scaler = np.sum(Up[node.name],axis=0)
                 Up[node.name] /= scaler  
-                
-    return GradLoglikelihood
+    
+    if not value_and_grad:            
+        return GradLoglikelihood
+    else:
+        return Loglikelihood, GradLoglikelihood
 
 
 # compute the log marginal likelihood of a tree given conjugate Gamma prior for branch lengths
