@@ -11,17 +11,27 @@ nuc2vec = {'A':[1.,0.,0.,0.], 'G':[0.,1.,0.,0.], 'C':[0.,0.,1.,0.], 'T':[0.,0.,0
            'V':[1.,1.,1.,0.], '.':[1.,1.,1.,1.], 'U':[0.,0.,0.,1.]}
 
 
-# initialized the conditional likelihood vectors
-def initialCLV(data):
+# initialize the conditional likelihood vectors, added unique site option
+def initialCLV(data, unique_site=False):
     nseqs, nsites = len(data), len(data[0])
-    
-    L = [np.ones((4,nsites)) for i in range(2*nseqs-2)]
-    for i in range(nseqs):
-        L[i] = np.transpose([nuc2vec[c] for c in data[i]])
-    return L
+    if unique_site:
+        data_arr = np.array(zip(*data))
+        unique_sites, counts = np.unique(data_arr, return_counts=True, axis=0)
+        n_unique_sites = len(counts)
+        unique_data = unique_sites.T
+        
+        L = np.ones((2*nseqs-2, 4, n_unique_sites))
+        for i in range(nseqs):
+            L[i] = np.transpose([nuc2vec[c] for c in unique_data[i]])
+        return L, counts
+    else:   
+        L = np.ones((2*nseqs-2, 4, nsites))
+        for i in range(nseqs):
+            L[i] = np.transpose([nuc2vec[c] for c in data[i]])
+        return L
 
             
-def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False, value_and_grad=False):
+def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, site_counts=1.0, grad=False, value_and_grad=False):
     nsites = L[0].shape[1]
 
     Loglikelihood = 0 
@@ -42,9 +52,9 @@ def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False, value_and
                 return -np.inf
                 
             L[node.name] /= scaler
-            Loglikelihood += np.sum(np.log(scaler))
+            Loglikelihood += np.sum(np.log(scaler) * site_counts)
             
-    Loglikelihood += np.sum(np.log(np.dot(pden,L[node.name])))
+    Loglikelihood += np.sum(np.log(np.dot(pden,L[node.name])) * site_counts)
     
     if not grad:
         return Loglikelihood
@@ -63,7 +73,7 @@ def phyloLoglikelihood(tree, branch, D, U, U_inv, pden, L, grad=False, value_and
             
             Up[node.name] = np.dot(pt_matrix[node.name].T,Up[node.name])
             gradient /= np.sum(Up[node.name]* L[node.name],axis=0)
-            GradLoglikelihood[node.name] = np.sum(gradient)
+            GradLoglikelihood[node.name] = np.sum(gradient * site_counts)
             
             if not node.is_leaf():
                 scaler = np.sum(Up[node.name],axis=0)
