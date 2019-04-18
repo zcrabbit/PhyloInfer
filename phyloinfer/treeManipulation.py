@@ -39,17 +39,30 @@ def create(ntips, branch='random', scale=0.1):
     return tree
     
 
-def namenum(tree, taxon):
+def namenum(tree, taxon, nodetosplitMap=None):
     taxon2idx = {}
     j = len(taxon)
+    if nodetosplitMap:
+        idx2split = ['']*(2*j-3)
     for i, name in enumerate(taxon):
         taxon2idx[name] = i
     for node in tree.traverse("postorder"):
         if node.is_leaf():
-            assert type(node.name) is str, "The taxon name should be strings"
-            node.name = taxon2idx[node.name]
+            # assert type(node.name) is str, "The taxon name should be strings"
+            if not isinstance(node.name, str):
+                warnings.warn("The taxon names are not strings, please check if they are already integers!")
+            else:
+                node.name = taxon2idx[node.name]
+                if nodetosplitMap:
+                    idx2split[node.name] = nodetosplitMap[node]
         else:
             node.name, j = j, j+1
+            if nodetosplitMap and not node.is_root():
+                idx2split[node.name] = nodetosplitMap[node]
+    
+    if nodetosplitMap:
+        return idx2split
+            
     
 
 def nametaxon(tree, taxon):
