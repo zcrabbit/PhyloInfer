@@ -108,7 +108,7 @@ def Qdist(tree1, tree2):
     return qdist('out/tree1.new', 'out/tree2.new')
 
 
-def mcmc_treeprob(filename, data_type, truncate=10, taxon=None):
+def mcmc_treeprob(filename, data_type, truncate=None, taxon=None):
     mcmc_samp_tree_stats = Phylo.parse(filename, data_type)
     mcmc_samp_tree_dict = {}
     mcmc_samp_tree_name = []
@@ -119,7 +119,8 @@ def mcmc_treeprob(filename, data_type, truncate=10, taxon=None):
         Phylo.write(tree, handle,'newick')
         mcmc_samp_tree_dict[tree.name] = Tree(handle.getvalue().strip())
         if taxon:
-            namenum(mcmc_samp_tree_dict[tree.name], taxon)
+            if taxon !='keep':
+                namenum(mcmc_samp_tree_dict[tree.name], taxon)
         else:
             init(mcmc_samp_tree_dict[tree.name],name='interior')
 
@@ -127,7 +128,7 @@ def mcmc_treeprob(filename, data_type, truncate=10, taxon=None):
         mcmc_samp_tree_name.append(tree.name)
         mcmc_samp_tree_wts.append(tree.weight)
         num_hp_tree += 1
-        if num_hp_tree >= truncate: break
+        if truncate and num_hp_tree >= truncate: break
 
     return mcmc_samp_tree_dict, mcmc_samp_tree_name, mcmc_samp_tree_wts
 
