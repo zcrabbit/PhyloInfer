@@ -1,0 +1,11 @@
+name: libsbn
+channels:
+  - anaconda
+  - bioconda
+  - etetoolkit
+dependencies:
+  - python=2.7
+  - ete3
+  - git
+  - future
+  - jupyter
