@@ -2,7 +2,7 @@ FROM continuumio/anaconda2:2019.07
 
 COPY environment.yml .
 
-RUN /opt/conda/bin/conda create -f environment.yml
+RUN /opt/conda/bin/conda env create -f environment.yml
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgsl0-dev
