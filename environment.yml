@@ -9,3 +9,9 @@ dependencies:
   - git
   - future
   - jupyter
+  - matplotlib
+  - pandas
+  - pip
+  - pip:
+    - bitarray
+    - dendropy
