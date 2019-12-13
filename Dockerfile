@@ -2,6 +2,7 @@ FROM continuumio/anaconda2:2019.07
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    libgl-dev \
     libgsl0-dev
 
 COPY environment.yml .

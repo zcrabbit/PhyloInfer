@@ -9,9 +9,11 @@ dependencies:
   - git
   - future
   - jupyter
-  - matplotlib
+  - matplotlib=2.1
   - pandas
   - pip
   - pip:
     - bitarray
     - dendropy
+  - pyqt
+  - seaborn
