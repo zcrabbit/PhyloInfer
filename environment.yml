@@ -1,0 +1,19 @@
+name: phyloinfer
+channels:
+  - anaconda
+  - bioconda
+  - etetoolkit
+dependencies:
+  - python=2.7
+  - ete3
+  - git
+  - future
+  - jupyter
+  - matplotlib=2.1
+  - pandas
+  - pip
+  - pip:
+    - bitarray
+    - dendropy
+  - pyqt
+  - seaborn
